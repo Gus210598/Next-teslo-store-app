@@ -1,40 +1,48 @@
+import { useContext } from 'react';
 import { Typography, Grid } from '@mui/material';
+import { CartContext } from '@/context/cart/CartContext';
+import { currency } from '@/utils';
 
 
 export const OrderSummary = () => {
+
+    const { numberOfItem, subTotal, tax, total } = useContext( CartContext );
+    
+
   return (
     <Grid container>
 
         <Grid item xs={ 6 }>
             <Typography>No. Productos</Typography>   
-        
         </Grid>
+
         <Grid item xs={ 6 } display='flex' justifyContent='end' >
-            <Typography>3</Typography>   
-        
+            <Typography>{ numberOfItem } { numberOfItem > 1 ? 'productos' :'producto' } </Typography>   
         </Grid>
 
         <Grid item xs={ 6 } >
             <Typography>SubTotal</Typography>   
         </Grid>
+
         <Grid item xs={ 6 } display='flex' justifyContent='end' >
-            <Typography>{ `$${ 155.36 }` } </Typography>   
+            <Typography>{ currency.format(subTotal) } </Typography>   
         </Grid>
 
         <Grid item xs={ 6 } >
-            <Typography>Impuestos (19%)</Typography>   
+            <Typography>Impuestos ({Number( process.env.NEXT_PUBLIC_TAX_RATE)*100}%)</Typography>   
         </Grid>
+
         <Grid item xs={ 6 } display='flex' justifyContent='end' >
-            <Typography>{ `$${ 69.36 }` } </Typography>   
+            <Typography>{ currency.format(tax) } </Typography>   
         </Grid>
 
         <Grid item xs={ 6 } sx={{ mt:2 }}>
             <Typography variant='subtitle1'>Total</Typography>   
         </Grid>
-        <Grid item xs={ 6 } sx={{ mt:2 }} display='flex' justifyContent='end' >
-            <Typography variant='subtitle1'>{ `$${ 169.36 }` } </Typography>   
-        </Grid>
 
+        <Grid item xs={ 6 } sx={{ mt:2 }} display='flex' justifyContent='end' >
+            <Typography variant='subtitle1'>{ currency.format(total) } </Typography>   
+        </Grid>
 
     </Grid>
   )

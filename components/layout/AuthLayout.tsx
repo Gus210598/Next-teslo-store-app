@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import Head from "next/head"
 
-import { Box, Typography, Grid, Card, CardContent, Divider, Button } from '@mui/material';
+import { Box } from '@mui/material';
 
 
 interface Props {
