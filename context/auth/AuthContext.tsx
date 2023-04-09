@@ -9,6 +9,7 @@ interface ContextProps {
     // Methds
     loginUser: (email: string, password: string) => Promise<boolean>;
     registerUser: (name: string, email: string, password: string ) => Promise<{ hasError: boolean; message?: string;}>;
+    logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext({} as ContextProps )
