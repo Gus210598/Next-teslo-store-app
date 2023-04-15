@@ -1,7 +1,7 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { Box, Typography, Grid, Card, CardContent, Divider, Button, Link } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Divider, Button, Link, Chip } from '@mui/material';
 import { ShopLayout } from '../../components/layout/ShopLayout';
 import { CartList } from '@/components/cart';
 import { OrderSummary } from '@/components/cart';
@@ -13,13 +13,27 @@ import Cookies from 'js-cookie';
 const SummaryPage = () => {
     
     const router = useRouter()
-    const { shippingAddress, numberOfItem } = useContext(CartContext);
+    const { shippingAddress, numberOfItems, createOrder } = useContext(CartContext);
+
+    const [isPosting, setIsPosting] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
       if ( !Cookies.get('firstName') ) {
         router.push('/checkout/address');
       }
-    }, [router])
+    }, [router]);
+
+    const onCreateOrder = async() => {
+        setIsPosting(true);
+        const { hasError, message } = await createOrder(); 
+        if ( hasError ) {
+            setIsPosting( false );
+            setErrorMessage( message );
+            return;
+        }
+        router.replace(`/orders/${ message }`);
+    }
     
 
     if ( !shippingAddress ) {
@@ -41,7 +55,7 @@ const SummaryPage = () => {
             <Grid item xs={ 12 } sm={ 5 }>
                 <Card className='summary-card' >
                     <CardContent>
-                        <Typography variant='h2'>Resumen ({numberOfItem} {numberOfItem===1 ? 'Producto' : 'Productos'})</Typography>
+                        <Typography variant='h2'>Resumen ({numberOfItems} {numberOfItems===1 ? 'Producto' : 'Productos'})</Typography>
                         <Divider sx={{ my:1 }}/>
 
                         <Box display='flex' justifyContent='space-between' >
@@ -75,12 +89,21 @@ const SummaryPage = () => {
                         {/* Order Summary */}
                         <OrderSummary />
 
-
-                        <Box sx={{ mt: 3 }}>
-                            <Button color='secondary' className='circular-btn' fullWidth>
+                        <Box sx={{ mt: 3 }} display='flex' flexDirection='column'>
+                            <Button 
+                                color='secondary' 
+                                className='circular-btn' 
+                                fullWidth
+                                onClick={ onCreateOrder }
+                                disabled = { isPosting }
+                            >
                                 Confirmar orden
                             </Button>
-
+                            <Chip 
+                                color='error'
+                                label= { errorMessage }
+                                sx={{ display: errorMessage ? 'flex' :'none', mt: 2 }}
+                            />
                         </Box>
 
                     </CardContent>

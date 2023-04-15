@@ -1,43 +1,36 @@
 import { FC, ReactNode, useEffect, useReducer } from 'react';
 import Cookie from 'js-cookie';
+import axios from 'axios';
 
 import { CartContext, cartReducer } from '.';
-import { ICartProduct } from '../../interfaces';
+import { ICartProduct, IOrder, ShippingAddress } from '../../interfaces';
+import { tesloApi } from '@/api';
 
 export interface CartState {
-    isLoaded    : boolean;
-    cart        : ICartProduct[];
-    numberOfItem: number;
-    subTotal    : number;
-    tax         : number;
-    total       : number;
+    isLoaded     : boolean;
+    cart         : ICartProduct[];
+    numberOfItems: number;
+    subTotal     : number;
+    tax          : number;
+    total        : number;
 
     shippingAddress?: ShippingAddress;
  
 }
 
-export interface ShippingAddress {
-    firstName   : string,
-    lastName    : string,
-    address     : string,
-    address2?   : string,
-    zip         : string,
-    city        : string,
-    country     : string,
-    phone       : string,
-}
+
 
 interface Props {
     children: ReactNode;
 }
 
 const CART_INITIAL_STATE: CartState = {
-    isLoaded    : false,
-    cart        : [],
-    numberOfItem: 0,
-    subTotal    : 0,
-    tax         : 0,
-    total       : 0,
+    isLoaded       : false,
+    cart           : [],
+    numberOfItems  : 0,
+    subTotal       : 0,
+    tax            : 0,
+    total          : 0,
     shippingAddress: undefined,
 }
 
@@ -81,12 +74,12 @@ export const CartProvider: FC<Props> = ({ children }) => {
 
     useEffect(() => {
 
-        const numberOfItem= state.cart.reduce( ( prev, current ) => current.quantity + prev, 0 );
+        const numberOfItems= state.cart.reduce( ( prev, current ) => current.quantity + prev, 0 );
         const subTotal= state.cart.reduce( ( prev, current ) => ( current.price * current.quantity ) + prev, 0 );
         const taxRate = Number( process.env.NEXT_PUBLIC_TAX_RATE || 0 );
 
         const orderSumary = {
-            numberOfItem,
+            numberOfItems,
             subTotal,
             tax: ( subTotal * taxRate ),
             total: (subTotal * taxRate) + subTotal
@@ -149,6 +142,52 @@ export const CartProvider: FC<Props> = ({ children }) => {
         dispatch({ type: '[Cart] - Update Adddress', payload: address })
     }
     
+    const createOrder = async(): Promise<{ hasError: boolean; message: string; }> => {
+
+        if ( !state.shippingAddress ) {
+            throw new Error('No hay dirección de entrega')
+        }
+
+        const body: IOrder = {
+            orderItems      : state.cart.map( p => ({
+                ...p,
+                size: p.size!
+            })),
+            shippingAddress : state.shippingAddress,
+            numberOfItems   : state.numberOfItems,
+            subTotal        : state.subTotal,
+            tax             : state.tax,
+            total           : state.total,
+            isPaid          : false,
+        }
+
+        try {
+            
+            const { data } = await tesloApi.post<IOrder>('/orders', body );
+            
+            // TODO: dispatch
+            dispatch({ type: '[Cart] - Order complete' });
+
+            return { 
+                hasError: false,
+                message: data._id!,
+            }
+
+        } catch (error) {
+            console.log(error);
+            if ( axios.isAxiosError(error) ) {
+                return {
+                    hasError: true,
+                    message: error.response?.data.message,
+                }
+            }
+
+            return {
+                hasError: true,
+                message: 'Error no controolado, hable con el administrador'
+            }
+        }
+    }
 
   return (
     <CartContext.Provider value={{
@@ -159,6 +198,9 @@ export const CartProvider: FC<Props> = ({ children }) => {
         updateCartQuantity,
         removeCartProduct,
         updateAddress,
+
+        // Orders
+        createOrder,
 
     }} >
         { children }
