@@ -1,4 +1,5 @@
 import { ISize, IUser } from './';
+
 export interface IOrder {
     _id?            : string;
     user?           : IUser | string;
@@ -13,6 +14,7 @@ export interface IOrder {
 
     isPaid          : boolean;
     paidAt?         : string;
+    trasactionId?   : String;
 }
 
 
