@@ -1,21 +1,22 @@
-import NextAuth from "next-auth";
-import GithubProvider from "next-auth/providers/github";
-import Credentials from "next-auth/providers/credentials";
-import { dbUser } from "@/database";
-import { signIn } from 'next-auth/react';
+import NextAuth from 'next-auth';
+import GithubProvider from 'next-auth/providers/github';
+import Credentials from 'next-auth/providers/credentials';
 
-export const authOptions = {
+import { dbUser } from '../../../database';
+
+export default NextAuth({
   // Configure one or more authentication providers
   providers: [
     
     // ...add more providers here
+
     Credentials({
       name: 'Custom Login',
       credentials: {
         email: { label: 'Correo:', type: 'email', placeholder:'correo@dominio.com' },
         password  : { label: 'Contraseña:', type: 'password', placeholder:'Contraseña' },
       },
-      async authorize(credentials) {
+      async authorize(credentials):Promise<any>  {
         // console.log({credentials})
         // TODO: validar contra base de datos
         // return null;
@@ -27,8 +28,21 @@ export const authOptions = {
       clientId: process.env.GITHUB_ID || '',
       clientSecret: process.env.GITHUB_SECRET || '',
     }),
+
+
   ],
 
+  // Custom Pages
+  pages: {
+    signIn: '/auth/login',
+    newUser: '/auth/register',
+  },
+
+  // Callbacks
+  jwt: {
+    // secret: process.env.JWT_SECRET_SEED, // deprecated
+  },
+  
   session: {
     maxAge: 2592000, // 30 días
     strategy: 'jwt',
@@ -36,46 +50,38 @@ export const authOptions = {
   },
 
 
-
-  // Custom pages
-  pages: {
-    signIn: '/auth/login',
-    newUser: '/auth/register',
-  },
-
-
-  // Callbacks
   callbacks: {
-      async jwt({ token, account, user }) {
+    async jwt({ token, account, user }) {
 
-        // console.log('Aer JWT ', { token, account, user} )
-        if ( account ) {
-          token.accessToken = account.access_token;
+      // console.log('Aer JWT ', { token, account, user} )
+      if ( account ) {
+        token.accessToken = account.access_token;
 
-          switch( account.type ) {
-            case 'oauth':
-              // Crear usuario o verificar si existe
-              token.user = await dbUser.oAuthToDbUser( user?.email || '', user?.name || '' )
-              break;
-            case 'credentials':
-              token.user = user;
-              break;
-          }
+        switch( account.type ) {
+          case 'oauth':
+            // Crear usuario o verificar si existe
+            token.user = await dbUser.oAuthToDbUser( user?.email || '', user?.name || '' )
+            break;
+          case 'credentials':
+            token.user = user;
+            break;
         }
-
-        return token;
-      },
-
-      async session({ session, token, user }) {
-        // console.log('Aer Session ',{ session, token, user })
-
-        session.accessToken = token.accessToken;
-        session.user = token.user as any;
-        return session;
-
       }
+
+      return token;
+    },
+
+
+    async session({ session, token, user }) {
+      // console.log('Aer Session ', session.accessToken )
+
+      // session.accessToken = token.accessToken;
+      session.user = token.user as any;
+      return session;
+
+    }
+    
+
   }
-}
 
-export default NextAuth(authOptions)
-
+});

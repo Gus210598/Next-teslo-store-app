@@ -13,6 +13,7 @@ import ConfirmationNumberOutlined from '@mui/icons-material/ConfirmationNumberOu
 import CategoryOutlined from '@mui/icons-material/CategoryOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AdminPanelSettings from '@mui/icons-material/AdminPanelSettings';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import { AuthContext, UiContext } from "@/context";
 
 export const SideMenu = () => {
@@ -151,20 +152,32 @@ export const SideMenu = () => {
                             <Divider />
                             <ListSubheader>Admin Panel</ListSubheader>
 
+                            <ListItemButton 
+                                onClick={ () => navigateTo('/admin/') } 
+                            >
+                                <ListItemIcon>
+                                    <DashboardOutlinedIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary={'Dashboard'} />
+                            </ListItemButton>
                             <ListItemButton >
                                 <ListItemIcon>
                                     <CategoryOutlined/>
                                 </ListItemIcon>
                                 <ListItemText primary={'Productos'} />
                             </ListItemButton>
-                            <ListItemButton>
+                            <ListItemButton
+                                onClick={ () => navigateTo('/admin/orders/') }
+                            >
                                 <ListItemIcon>
                                     <ConfirmationNumberOutlined/>
                                 </ListItemIcon>
                                 <ListItemText primary={'Ordenes'} />
                             </ListItemButton>
 
-                            <ListItemButton>
+                            <ListItemButton
+                                onClick={ () => navigateTo('/admin/users/') }
+                            >
                                 <ListItemIcon>
                                     <AdminPanelSettings/>
                                 </ListItemIcon>

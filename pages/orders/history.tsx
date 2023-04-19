@@ -2,8 +2,8 @@ import NextLink from 'next/link';
 import { GetServerSideProps, NextPage } from 'next'
 
 import { Typography, Grid, Link, Chip } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid/models';
+
+import { GridColDef, GridRenderCellParams, DataGrid } from '@mui/x-data-grid';
 
 
 import { ShopLayout } from '../../components/layout/ShopLayout';

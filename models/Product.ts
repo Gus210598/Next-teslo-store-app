@@ -3,20 +3,20 @@ import mongoose, { model, Model, Schema } from "mongoose";
 
 const productSchema = new Schema({
     description: { type: String, required: true },
-    images: [{ type: String }],
-    inStock: { type: Number, required: true, default: 0 },
-    price: { type: Number, required: true, default: 0 },
-    sizes: [{
+    images     : [{ type: String }],
+    inStock    : { type: Number, required: true, default: 0 },
+    price      : { type: Number, required: true, default: 0 },
+    sizes      : [{
         type: String,
         enum: {
             values:['XS','S','M','L','XL','XXL','XXXL'],
             message: '{VALUE} no es un tamaño válido',
         }
     }],
-    slug: { type: String, required: true, unique: true },
-    tags: [{ type: String }],
+    slug : { type: String, required: true, unique: true },
+    tags : [{ type: String }],
     title: { type: String, required: true },
-    type: {
+    type : {
         type: String,
         enum: {
             values:['shirts','pants','hoodies','hats'],
