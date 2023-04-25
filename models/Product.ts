@@ -15,20 +15,22 @@ const productSchema = new Schema({
     }],
     slug : { type: String, required: true, unique: true },
     tags : [{ type: String }],
-    title: { type: String, required: true },
+    title: { type: String, required: true, default: '' },
     type : {
         type: String,
         enum: {
             values:['shirts','pants','hoodies','hats'],
             message: '{VALUE} no es un tipo válido',
-        }
+        },
+        default: 'shirt'
     },
     gender:  {
         type: String,
         enum: {
             values:['men','women','kid','unisex'],
             message: '{VALUE} no es un genero válido',
-        }
+        },
+        default: 'woman'
     },
 },{
     timestamps: true
